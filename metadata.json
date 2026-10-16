@@ -1,0 +1,6 @@
+{
+  "name": "University Student Management System",
+  "description": "Comprehensive student management system featuring Admin, Faculty, and Student dashboards with camera face-scanning attendance, academic tracking, notices, help requests, complaints, and voting.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
