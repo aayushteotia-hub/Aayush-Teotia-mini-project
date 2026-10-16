@@ -9,15 +9,10 @@ import {
   Smartphone,
   Monitor,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext.tsx';
-import { NotificationDrawer } from './NotificationDrawer.tsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { NotificationDrawer } from './NotificationDrawer.jsx';
 
-interface NavbarProps {
-  deviceMode?: 'mobile' | 'desktop';
-  onToggleDeviceMode?: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ deviceMode = 'mobile', onToggleDeviceMode }) => {
+export const Navbar = ({ deviceMode = 'mobile', onToggleDeviceMode }) => {
   const { user, role, loginAsRole, signOut } = useAuth();
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -28,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({ deviceMode = 'mobile', onToggleD
       const res = await fetch(`/api/notifications?role=${role}${rollParam}`);
       if (res.ok) {
         const data = await res.json();
-        setUnreadCount(data.filter((n: any) => !n.isRead).length);
+        setUnreadCount(data.filter((n) => !n.isRead).length);
       }
     } catch {
       // ignore

@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, CheckCheck, X, FileText, MessageSquare, HelpCircle, AlertTriangle, Vote, CheckCircle2 } from 'lucide-react';
-import { NotificationItem } from '../types.ts';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
-interface NotificationDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, onClose }) => {
+export const NotificationDrawer = ({ isOpen, onClose }) => {
   const { user, role } = useAuth();
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetchNotifications = async () => {
@@ -35,7 +29,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
     }
   }, [isOpen, role, user]);
 
-  const markAsRead = async (id: number) => {
+  const markAsRead = async (id) => {
     try {
       await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
@@ -44,7 +38,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
     }
   };
 
-  const getIcon = (type: string) => {
+  const getIcon = (type) => {
     switch (type) {
       case 'notice':
         return <FileText className="w-4 h-4 text-[#3B82F6]" />;
@@ -123,7 +117,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({ isOpen, 
         </div>
 
         <div className="p-3 border-t border-[#262626] bg-[#000000] flex items-center justify-between text-xs text-gray-500">
-          <span>Role: {role.toUpperCase()}</span>
+          <span>Role: {role?.toUpperCase?.() || ''}</span>
           <button
             onClick={() => setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))}
             className="text-[#10B981] hover:underline font-bold text-[11px]"

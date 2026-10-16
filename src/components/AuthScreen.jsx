@@ -8,9 +8,9 @@ import {
   Camera,
   CheckCircle,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
-export const AuthScreen: React.FC = () => {
+export const AuthScreen = () => {
   const { loginAsRole, signInWithGoogle } = useAuth();
 
   return (
@@ -156,7 +156,7 @@ export const AuthScreen: React.FC = () => {
           </p>
           <button
             onClick={signInWithGoogle}
-            className="inline-flex items-center gap-3 bg-[#141414] hover:bg-[#1C1C1C] text-white text-xs font-semibold py-2.5 px-6 rounded-xl border border-[#262626] shadow-xs transition-colors"
+            className="inline-flex items-center gap-3 bg-[#141414] hover:bg-[#1C1C1C] text-white text-xs font-semibold py-2.5 px-6 rounded-xl border border-[#262626] shadow-xs transition-colors cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path

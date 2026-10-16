@@ -11,65 +11,57 @@ import {
   User,
   ShieldCheck,
   Zap,
-  Sparkles,
 } from 'lucide-react';
-import { Student, Subject } from '../types.ts';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from '../context/AuthContext.jsx';
 
-interface AttendanceScannerProps {
-  students: Student[];
-  subjects: Subject[];
-  onAttendanceMarked?: () => void;
-}
-
-export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
-  students,
-  subjects,
+export const AttendanceScanner = ({
+  students = [],
+  subjects = [],
   onAttendanceMarked,
 }) => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'face' | 'roll'>('face');
+  const [activeTab, setActiveTab] = useState('face');
 
   // Common Form States
-  const [selectedSubject, setSelectedSubject] = useState<string>(
+  const [selectedSubject, setSelectedSubject] = useState(
     subjects[0]?.name || 'Database Management Systems'
   );
-  const [attendanceDate, setAttendanceDate] = useState<string>(
+  const [attendanceDate, setAttendanceDate] = useState(
     new Date().toISOString().split('T')[0]
   );
-  const [attendanceTime, setAttendanceTime] = useState<string>(
+  const [attendanceTime, setAttendanceTime] = useState(
     new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   );
-  const [attendanceStatus, setAttendanceStatus] = useState<'Present' | 'Late' | 'Absent'>('Present');
-  const [teacherName, setTeacherName] = useState<string>(
+  const [attendanceStatus, setAttendanceStatus] = useState('Present');
+  const [teacherName, setTeacherName] = useState(
     user?.role === 'teacher' ? user.name : 'Prof. Ananya Sen'
   );
-  const [remarks, setRemarks] = useState<string>('');
+  const [remarks, setRemarks] = useState('');
 
   // Status & Notification feedback
   const [saving, setSaving] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // -------------------------------------------------------------
   // Face Scanner State
   // -------------------------------------------------------------
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef(null);
   const [cameraActive, setCameraActive] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
-  const [detectedStudent, setDetectedStudent] = useState<Student | null>(null);
-  const [detectionConfidence, setDetectionConfidence] = useState<number | null>(null);
-  const [selectedTargetStudentId, setSelectedTargetStudentId] = useState<number>(
+  const [detectedStudent, setDetectedStudent] = useState(null);
+  const [detectionConfidence, setDetectionConfidence] = useState(null);
+  const [selectedTargetStudentId, setSelectedTargetStudentId] = useState(
     students[0]?.id || 1
   );
 
   // -------------------------------------------------------------
   // Roll Number State
   // -------------------------------------------------------------
-  const [inputRoll, setInputRoll] = useState<string>('2024CS101');
-  const [searchedStudent, setSearchedStudent] = useState<Student | null>(null);
+  const [inputRoll, setInputRoll] = useState('2024CS101');
+  const [searchedStudent, setSearchedStudent] = useState(null);
   const [searchNotFound, setSearchNotFound] = useState(false);
 
   useEffect(() => {
@@ -99,7 +91,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
       } else {
         setCameraError('Camera API not available in this browser window. Biometric simulation mode active.');
       }
-    } catch (err: any) {
+    } catch {
       setCameraError('Camera stream unavailable. Biometric viva demonstration mode active.');
       setCameraActive(false);
     }
@@ -107,7 +99,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
 
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
+      const stream = videoRef.current.srcObject;
       stream.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
     }
@@ -138,7 +130,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
     }, 250);
   };
 
-  const handleSearchRoll = (rollToSearch?: string) => {
+  const handleSearchRoll = (rollToSearch) => {
     setSuccessMessage(null);
     setErrorMessage(null);
     const target = (rollToSearch || inputRoll).trim().toUpperCase();
@@ -152,7 +144,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
     }
   };
 
-  const handleSaveAttendance = async (student: Student, method: 'Face Recognition' | 'Roll Number Verification') => {
+  const handleSaveAttendance = async (student, method) => {
     setSaving(true);
     setSuccessMessage(null);
     setErrorMessage(null);
@@ -187,7 +179,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
           onAttendanceMarked();
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       setErrorMessage(err.message || 'Network error while recording attendance');
     } finally {
       setSaving(false);
@@ -430,7 +422,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
               <button
                 onClick={handleTriggerFaceScan}
                 disabled={isScanning}
-                className="w-full sm:w-auto bg-[#10B981] hover:bg-emerald-600 text-black text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
+                className="w-full sm:w-auto bg-[#10B981] hover:bg-emerald-600 text-black text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Zap className="w-4 h-4 text-black" />
                 {isScanning ? 'Scanning Face...' : 'Scan & Identify Face'}
@@ -467,7 +459,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
                 <div className="bg-[#0A0A0A] rounded-xl p-3 text-xs space-y-1.5 border border-[#262626] text-gray-300">
                   <div className="flex justify-between">
                     <span className="text-gray-400">Course & Branch:</span>
-                    <span className="font-bold text-white">{detectedStudent.course} ({detectedStudent.branch.split(' ')[0]})</span>
+                    <span className="font-bold text-white">{detectedStudent.course} ({detectedStudent.branch?.split?.(' ')?.[0] || detectedStudent.branch})</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Semester & Sec:</span>
@@ -488,12 +480,12 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
                     Attendance Status:
                   </label>
                   <div className="grid grid-cols-3 gap-2">
-                    {(['Present', 'Late', 'Absent'] as const).map((status) => (
+                    {['Present', 'Late', 'Absent'].map((status) => (
                       <button
                         key={status}
                         type="button"
                         onClick={() => setAttendanceStatus(status)}
-                        className={`text-xs font-bold py-2 rounded-xl border transition-all ${
+                        className={`text-xs font-bold py-2 rounded-xl border transition-all cursor-pointer ${
                           attendanceStatus === status
                             ? status === 'Present'
                               ? 'bg-[#10B981] text-black border-[#10B981]'
@@ -512,7 +504,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
                 <button
                   onClick={() => handleSaveAttendance(detectedStudent, 'Face Recognition')}
                   disabled={saving}
-                  className="w-full bg-[#10B981] hover:bg-emerald-600 text-black font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
+                  className="w-full bg-[#10B981] hover:bg-emerald-600 text-black font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50 cursor-pointer"
                 >
                   <CheckCircle2 className="w-4 h-4 text-black" />
                   {saving ? 'Saving...' : 'Teacher Confirms & Mark Attendance'}
@@ -558,7 +550,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
               </div>
               <button
                 onClick={() => handleSearchRoll()}
-                className="bg-[#3B82F6] hover:bg-blue-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-all"
+                className="bg-[#3B82F6] hover:bg-blue-600 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <Search className="w-3.5 h-3.5" /> Search
               </button>
@@ -573,7 +565,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
                     setInputRoll(s.rollNumber);
                     handleSearchRoll(s.rollNumber);
                   }}
-                  className="text-[11px] font-mono bg-[#0A0A0A] text-gray-300 hover:text-white hover:border-[#10B981] px-2 py-0.5 rounded border border-[#262626]"
+                  className="text-[11px] font-mono bg-[#0A0A0A] text-gray-300 hover:text-white hover:border-[#10B981] px-2 py-0.5 rounded border border-[#262626] cursor-pointer"
                 >
                   {s.rollNumber}
                 </button>
@@ -607,12 +599,12 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
 
                 <div className="flex items-center justify-between pt-2 border-t border-[#262626]">
                   <div className="flex gap-2">
-                    {(['Present', 'Late', 'Absent'] as const).map((status) => (
+                    {['Present', 'Late', 'Absent'].map((status) => (
                       <button
                         key={status}
                         type="button"
                         onClick={() => setAttendanceStatus(status)}
-                        className={`text-xs font-bold py-1 px-2.5 rounded-lg border transition-all ${
+                        className={`text-xs font-bold py-1 px-2.5 rounded-lg border transition-all cursor-pointer ${
                           attendanceStatus === status
                             ? 'bg-[#10B981] text-black border-[#10B981]'
                             : 'bg-[#141414] text-gray-400 border-[#262626]'
@@ -626,7 +618,7 @@ export const AttendanceScanner: React.FC<AttendanceScannerProps> = ({
                   <button
                     onClick={() => handleSaveAttendance(searchedStudent, 'Roll Number Verification')}
                     disabled={saving}
-                    className="bg-[#10B981] hover:bg-emerald-600 text-black font-extrabold py-2 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-all"
+                    className="bg-[#10B981] hover:bg-emerald-600 text-black font-extrabold py-2 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                   >
                     <UserCheck className="w-4 h-4 text-black" />
                     {saving ? 'Saving...' : 'Verify & Mark Attendance'}

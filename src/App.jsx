@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext.tsx';
-import { Navbar } from './components/Navbar.tsx';
-import { AuthScreen } from './components/AuthScreen.tsx';
-import { AdminDashboard } from './components/AdminDashboard.tsx';
-import { TeacherDashboard } from './components/TeacherDashboard.tsx';
-import { StudentMobileApp } from './components/StudentMobileApp.tsx';
-import { StudentDashboard } from './components/StudentDashboard.tsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+import { Navbar } from './components/Navbar.jsx';
+import { AuthScreen } from './components/AuthScreen.jsx';
+import { AdminDashboard } from './components/AdminDashboard.jsx';
+import { TeacherDashboard } from './components/TeacherDashboard.jsx';
+import { StudentMobileApp } from './components/StudentMobileApp.jsx';
+import { StudentDashboard } from './components/StudentDashboard.jsx';
 
 function MainLayout() {
   const { isAuthenticated, role } = useAuth();
-  const [studentViewMode, setStudentViewMode] = useState<'mobile' | 'desktop'>('mobile');
-  const [studentPortalTab, setStudentPortalTab] = useState<'standard' | 'extra'>('standard');
+  const [studentViewMode, setStudentViewMode] = useState('mobile');
+  const [, setStudentPortalTab] = useState('standard');
 
   if (!isAuthenticated) {
     return <AuthScreen />;

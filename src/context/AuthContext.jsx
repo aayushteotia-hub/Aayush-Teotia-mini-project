@@ -1,19 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserRole, UserProfile } from '../types.ts';
 import { auth, googleAuthProvider } from '../lib/firebase.ts';
-import { signInWithPopup, signOut as fbSignOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from 'firebase/auth';
 
-interface AuthContextType {
-  user: UserProfile | null;
-  role: UserRole;
-  isAuthenticated: boolean;
-  loginAsRole: (role: UserRole) => void;
-  signInWithGoogle: () => Promise<void>;
-  signOut: () => Promise<void>;
-  updateProfile: (data: Partial<UserProfile>) => void;
-}
-
-const defaultPersonas: Record<UserRole, UserProfile> = {
+const defaultPersonas = {
   admin: {
     uid: 'demo-admin-01',
     name: 'Dr. Rajesh Sharma',
@@ -40,10 +29,10 @@ const defaultPersonas: Record<UserRole, UserProfile> = {
   },
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(() => {
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('univ_user');
     if (saved) {
       try {
@@ -52,16 +41,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return null;
       }
     }
-    return defaultPersonas.admin; // Start with Admin ready or loaded
+    return defaultPersonas.student;
   });
 
-  const role = user?.role || 'admin';
+  const role = user?.role || 'student';
   const isAuthenticated = user !== null;
 
   useEffect(() => {
     if (user) {
       localStorage.setItem('univ_user', JSON.stringify(user));
-      // Sync with backend
       fetch('/api/users/sync', {
         method: 'POST',
         headers: {
@@ -77,15 +65,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
-  // Listen to Firebase auth changes if signed in via Google
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (fbUser: FirebaseUser | null) => {
-      if (fbUser && (!user || user.uid.startsWith('demo-'))) {
-        const newUser: UserProfile = {
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      if (fbUser && (!user || user.uid?.startsWith('demo-'))) {
+        const newUser = {
           uid: fbUser.uid,
           name: fbUser.displayName || 'Faculty Member',
           email: fbUser.email || 'faculty@univ.edu',
-          role: 'teacher', // default role for Google sign in
+          role: 'teacher',
           avatar: fbUser.photoURL || undefined,
         };
         setUser(newUser);
@@ -94,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  const loginAsRole = (selectedRole: UserRole) => {
+  const loginAsRole = (selectedRole) => {
     const persona = defaultPersonas[selectedRole];
     setUser(persona);
   };
@@ -103,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const result = await signInWithPopup(auth, googleAuthProvider);
       const fbUser = result.user;
-      const newUser: UserProfile = {
+      const newUser = {
         uid: fbUser.uid,
         name: fbUser.displayName || 'University Member',
         email: fbUser.email || 'member@univ.edu',
@@ -111,9 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         avatar: fbUser.photoURL || undefined,
       };
       setUser(newUser);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Firebase Google Sign-In error:', err);
-      // Fallback to teacher persona if popup is blocked in iframe
       loginAsRole('teacher');
     }
   };
@@ -127,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  const updateProfile = (data: Partial<UserProfile>) => {
+  const updateProfile = (data) => {
     if (!user) return;
     setUser({ ...user, ...data });
   };
